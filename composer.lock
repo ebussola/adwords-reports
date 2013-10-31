@@ -3,8 +3,27 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "5b1a7e92341c8fcdcb2a7380f02cc265",
+    "hash": "93e2151f3b3877a9a3fb7ac8a3b69490",
     "packages": [
+        {
+            "name": "google/adwords",
+            "version": "4.6.1",
+            "source": {
+                "type": "git",
+                "url": "https://code.google.com/p/google-api-adwords-php/",
+                "reference": "6e602ed6a048d15779e64384232ac8004898555b"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "src/Google/Api/Ads/AdWords/Lib",
+                    "src/Google/Api/Ads/AdWords/Util",
+                    "src/Google/Api/Ads/AdWords/v201309",
+                    "src/Google/Api/Ads/Common/Lib",
+                    "src/Google/Api/Ads/Common/Util"
+                ]
+            }
+        },
         {
             "name": "guzzle/guzzle",
             "version": "v3.7.4",
