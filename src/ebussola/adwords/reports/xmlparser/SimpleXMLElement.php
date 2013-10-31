@@ -38,14 +38,22 @@ class SimpleXMLElement implements XMLParser {
             if (is_array($element_value)) {
 
                 switch ($element_name) {
-                    case 'fields' :
-                    case 'values' :
-                        $this->simpleArray2El($parent, $element_name, $element_value);
-                        break;
-
+                    case false :
                     default :
                         $el = $parent->addChild($element_name);
                         $this->recursiveArrayToElementLvl1($el, $element_value);
+                        break;
+
+                    case 'predicates' :
+                        foreach ($element_value as $predicate) {
+                            $el = $parent->addChild($element_name);
+                            $this->recursiveArrayToElementLvl1($el, $predicate);
+                        }
+                        break;
+
+                    case 'fields' :
+                    case 'values' :
+                        $this->simpleArray2El($parent, $element_name, $element_value);
                         break;
                 }
 

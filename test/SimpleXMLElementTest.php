@@ -22,9 +22,16 @@ class SimpleXMLElementTest extends PHPUnit_Framework_TestCase {
             'selector' => array(
                 'fields' => array('CampaignId', 'Id', 'Impressions', 'Clicks', 'Cost'),
                 'predicates' => array(
-                    'field' => 'Status',
-                    'operator' => 'IN',
-                    'values' => array('ENABLED', 'PAUSED')
+                    array(
+                        'field' => 'Status',
+                        'operator' => 'IN',
+                        'values' => array('ENABLED', 'PAUSED')
+                    ),
+                    array(
+                        'field' => 'Clicks',
+                        'operator' => 'GREATER_THAN',
+                        'values' => '0'
+                    )
                 ),
                 'dateRange' => array(
                     'min' => '20131001',
@@ -53,6 +60,11 @@ class SimpleXMLElementTest extends PHPUnit_Framework_TestCase {
       <operator>IN</operator>
       <values>ENABLED</values>
       <values>PAUSED</values>
+    </predicates>
+    <predicates>
+      <field>Clicks</field>
+      <operator>GREATER_THAN</operator>
+      <values>0</values>
     </predicates>
     <dateRange>
       <min>20131001</min>
