@@ -19,6 +19,7 @@ class SimpleXMLElementTest extends PHPUnit_Framework_TestCase {
 
     public function testArrayToXml() {
         $arr = array(
+            'id' => null,
             'selector' => array(
                 'fields' => array('CampaignId', 'Id', 'Impressions', 'Clicks', 'Cost'),
                 'predicates' => array(
@@ -83,5 +84,54 @@ XML;
         $this->assertEquals($expected, $xml_str);
     }
 
+    public function testReportXmlToArray() {
+        $xml = <<<XML
+<?xml version='1.0' encoding='UTF-8' standalone='yes'?>
+<report>
+    <report-name name="Foo Report" />
+    <date-range date="Oct 22, 2013-Nov 1, 2013" />
+    <table>
+        <columns>
+            <column name="budget" display="Budget" />
+            <column name="avgCPC" display="Avg. CPC" />
+            <column name="avgPosition" display="Avg. position" />
+            <column name="campaign" display="Campaign" />
+            <column name="clicks" display="Clicks" />
+        </columns>
+        <row budget="100.00" avgCPC="0.00" avgPosition="0.0" campaign="APSA - Pesquisa" clicks="0" />
+        <row budget="12.00" avgCPC="0.84" avgPosition="2.3" campaign="Apsa - Locação BA - Abril 2011" clicks="430" />
+        <row budget="20.00" avgCPC="1.23" avgPosition="1.6" campaign="Apsa - Condomínio PE - Abril 2011" clicks="174" />
+    </table>
+</report>
+XML;
+
+        $expected = array(
+            (object) array(
+                'budget'      => "100.00",
+                'avgCPC'      => "0.00",
+                'avgPosition' => "0.0",
+                'campaign'    => "APSA - Pesquisa",
+                'clicks'      => "0"
+            ),
+            (object) array(
+                'budget'      => "12.00",
+                'avgCPC'      => "0.84",
+                'avgPosition' => "2.3",
+                'campaign'    => "Apsa - Locação BA - Abril 2011",
+                'clicks'      => "430"
+            ),
+            (object) array(
+                'budget'      => "20.00",
+                'avgCPC'      => "1.23",
+                'avgPosition' => "1.6",
+                'campaign'    => "Apsa - Condomínio PE - Abril 2011",
+                'clicks'      => "174"
+            )
+        );
+
+        $arr = $this->xml_parser->reportXmlToArray($xml);
+
+        $this->assertEquals($expected, $arr);
+    }
+
 }
- 

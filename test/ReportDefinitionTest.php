@@ -6,7 +6,7 @@
  * Time: 09:09
  */
 
-class ReportDefinitionTest extends PHPUnit_Framework_TestCase {
+class ReportDefinitionTest extends \PHPUnit_Framework_TestCase {
 
     public function testToArray() {
         $original = new \ReportDefinition();

@@ -24,16 +24,36 @@ class SimpleXMLElement implements XMLParser {
     public function arrayToXml($arr) {
         $report_definition = new \SimpleXMLElement('<reportDefinition/>');
         $report_definition->addAttribute('xmlns', 'https://adwords.google.com/api/adwords/cm/'.Reports::API_VERSION);
-        $this->recursiveArrayToElementLvl1($report_definition, $arr);
+        $this->recursiveArrayToElement($report_definition, $arr);
 
         return str_replace("\n", '', $report_definition->asXML());
+    }
+
+    /**
+     * @param string $xml
+     *
+     * @return array
+     */
+    public function reportXmlToArray($xml) {
+        $xml = new \SimpleXMLElement($xml);
+        $result_arr = array();
+        /** @var \SimpleXMLElement $row */
+        foreach ($xml->table->row as $row) {
+            $row_arr = array();
+            foreach ($row->attributes() as $key => $value) {
+                $row_arr[$key] = (string)$value;
+            }
+            $result_arr[] = (object) $row_arr;
+        }
+
+        return $result_arr;
     }
 
     /**
      * @param \SimpleXMLElement $parent
      * @param array             $arr
      */
-    private function recursiveArrayToElementLvl1(\SimpleXMLElement $parent, $arr) {
+    private function recursiveArrayToElement(\SimpleXMLElement $parent, $arr) {
         foreach ($arr as $element_name => $element_value) {
             if (is_array($element_value)) {
 
@@ -41,13 +61,13 @@ class SimpleXMLElement implements XMLParser {
                     case false :
                     default :
                         $el = $parent->addChild($element_name);
-                        $this->recursiveArrayToElementLvl1($el, $element_value);
+                        $this->recursiveArrayToElement($el, $element_value);
                         break;
 
                     case 'predicates' :
                         foreach ($element_value as $predicate) {
                             $el = $parent->addChild($element_name);
-                            $this->recursiveArrayToElementLvl1($el, $predicate);
+                            $this->recursiveArrayToElement($el, $predicate);
                         }
                         break;
 
@@ -57,25 +77,9 @@ class SimpleXMLElement implements XMLParser {
                         break;
                 }
 
-            } else {
+            } else if ($element_value != null) {
 
                 $parent->addChild($element_name, $element_value);
-            }
-        }
-    }
-
-    /**
-     * @param \SimpleXMLElement $parent
-     * @param                   $element_value
-     * @param                   $element_name
-     */
-    private function recursiveArrayToElementLvl2(\SimpleXMLElement $parent, $element_value) {
-        foreach ($element_value as $element_name => $value) {
-            if (is_array($value)) {
-                $el = $parent->addChild($element_name);
-                $this->recursiveArrayToElementLvl2($el, $value, $element_name);
-            } else {
-                $parent->addChild($element_name, $value);
             }
         }
     }

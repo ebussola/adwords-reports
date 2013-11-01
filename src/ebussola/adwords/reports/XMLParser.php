@@ -23,4 +23,11 @@ interface XMLParser {
      */
     public function arrayToXml($arr);
 
+    /**
+     * @param string $xml
+     *
+     * @return array
+     */
+    public function reportXmlToArray($xml);
+
 } 
