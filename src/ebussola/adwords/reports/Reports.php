@@ -52,10 +52,11 @@ class Reports {
     private $customer_id;
 
     /**
-     * @param Client $client
-     * @param string $auth_token
-     * @param string $developer_token
-     * @param string $customer_id
+     * @param Client    $client
+     * @param XMLParser $xml_parser
+     * @param string    $auth_token
+     * @param string    $developer_token
+     * @param string    $customer_id
      */
     public function __construct(Client $client, XMLParser $xml_parser,
                                 $auth_token, $developer_token, $customer_id) {
@@ -73,6 +74,7 @@ class Reports {
      * @param ReportDefinition[] $report_definitions
      *
      * @return array
+     * @throws \Exception
      */
     public function downloadReports($report_definitions) {
 
@@ -95,6 +97,7 @@ class Reports {
 
                 $messages = '';
                 foreach ($e as $exception) {
+                    /** @noinspection PhpUndefinedMethodInspection */
                     $element = new \SimpleXMLElement($exception->getResponse()->getBody('true'));
                     $api_error = $element->ApiError->type;
                     $trigger = $element->ApiError->trigger;
@@ -134,11 +137,11 @@ class Reports {
     }
 
     /**
-     * @param string            $report_name
-     * @param array             $predicates
-     * @param \DateTime         $date_start
-     * @param \DateTime         $date_end
-     * @param \ReportDefinition $report_definition
+     * @param string           $report_name
+     * @param array            $predicates
+     * @param \DateTime        $date_start
+     * @param \DateTime        $date_end
+     * @param ReportDefinition $report_definition
      *
      * @return ReportDefinition
      */
@@ -151,7 +154,7 @@ class Reports {
     ) {
 
         if ($report_definition === null) {
-            $report_definition = new \ebussola\adwords\reports\reportdefinition\ReportDefinition(new \ReportDefinition());
+            $report_definition = new reportdefinition\ReportDefinition(new \ReportDefinition());
         }
 
         $report_definition->selector->predicates = $predicates;
