@@ -41,6 +41,31 @@ class ReportsTest extends \PHPUnit_Framework_TestCase {
         }
     }
 
+    public function testMultipleDownloadReports() {
+
+        $report_definitions = array();
+        for ($i=0 ; $i<=100 ; $i++) {
+            $campaign_report = new CampaignPerformanceReport(new ReportDefinition());
+            $date_start = new \DateTime('-60 days');
+            $date_end = new \DateTime('today');
+            $this->reports->buildReportDefinition('Foo Report', array(), $date_start, $date_end, $campaign_report);
+
+            $report_definitions[] = $campaign_report;
+        }
+
+        $reports = $this->reports->downloadReports($report_definitions);
+
+        foreach ($reports as $report) {
+            foreach ($report as $row) {
+                $this->assertObjectHasAttribute('budget', $row);
+                $this->assertObjectHasAttribute('avgCPC', $row);
+                $this->assertObjectHasAttribute('avgPosition', $row);
+                $this->assertObjectHasAttribute('campaign', $row);
+                $this->assertObjectHasAttribute('clicks', $row);
+            }
+        }
+    }
+
 }
 
 class CampaignPerformanceReport extends \ebussola\adwords\reports\reportdefinition\ReportDefinition {

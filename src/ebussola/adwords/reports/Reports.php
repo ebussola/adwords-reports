@@ -17,7 +17,9 @@ class Reports {
 
     const API_VERSION = 'v201309';
 
-    const MAX_PARALLEL_DOWNLOADS = 50;
+    const MAX_PARALLEL_DOWNLOADS = 40;
+
+    const FILE_COUNTER = '/dev/shm/ebussola_adwords_reports_counter';
 
     /**
      * @var Client
@@ -28,6 +30,11 @@ class Reports {
      * @var XMLParser
      */
     private $xml_parser;
+
+    /**
+     * @var \SplFileObject
+     */
+    private $file_counter;
 
     /**
      * @var string
@@ -58,6 +65,8 @@ class Reports {
         $this->auth_token = $auth_token;
         $this->developer_token = $developer_token;
         $this->customer_id = $customer_id;
+
+        $this->file_counter = new \SplFileObject(self::FILE_COUNTER, 'a+');
     }
 
     /**
@@ -70,18 +79,20 @@ class Reports {
         $responses = array();
         $offset = 0;
         do {
+            list($sliced_report_definitions_count, $requests) = $this->getNextRequests($report_definitions, $offset);
 
-            /** @var ReportDefinition[] $sliced_report_definitions */
-            $sliced_report_definitions = array_slice($report_definitions, $offset, self::MAX_PARALLEL_DOWNLOADS);
-            $requests = array();
-            foreach ($sliced_report_definitions as $report_definition) {
-                $requests[] = $this->buildRequest($report_definition);
-                $offset++;
+            // if $requests is none, wait a moment to free some slots and try again
+            if (count($requests) == 0) {
+                usleep(10000);
+                continue;
             }
 
             try {
                 $responses = array_merge($responses, $this->client->send($requests));
             } catch (MultiTransferException $e) {
+
+                $this->freeUsedRequestCount($sliced_report_definitions_count);
+
                 $messages = '';
                 foreach ($e as $exception) {
                     $element = new \SimpleXMLElement($exception->getResponse()->getBody('true'));
@@ -93,6 +104,8 @@ class Reports {
 
                 throw new \Exception($messages);
             }
+
+            $this->freeUsedRequestCount($sliced_report_definitions_count);
 
         } while (count($responses) < count($report_definitions));
 
@@ -158,7 +171,7 @@ class Reports {
      */
     private function buildRequest(ReportDefinition $report_definition) {
         $xml = $this->xml_parser->arrayToXml($report_definition->toArray());
-        $request = $this->client->post('https://adwords.google.com/api/adwords/reportdownload/v201309', array(
+        $request = $this->client->post('https://adwords.google.com/api/adwords/reportdownload/'.self::API_VERSION, array(
             'Authorization'    => $this->auth_token,
             'developerToken'   => $this->developer_token,
             'clientCustomerId' => $this->customer_id
@@ -167,6 +180,82 @@ class Reports {
         ));
 
         return $request;
+    }
+
+    /**
+     * Lock the counter and get the current available amount of slots
+     *
+     * @return int
+     */
+    private function lockAndGetAvailableRequestCount() {
+        $this->file_counter->flock(LOCK_EX);
+
+        $this->file_counter->rewind();
+        $used_request_count = (int) $this->file_counter->fgets();
+
+        $available_request_count = self::MAX_PARALLEL_DOWNLOADS - $used_request_count;
+
+        return $available_request_count;
+    }
+
+    /**
+     * Unlock the counter and update the counter with used slots
+     *
+     * @param int $sliced_report_definitions_count
+     */
+    private function unlock($sliced_report_definitions_count) {
+        $this->file_counter->rewind();
+        $used_request_count = (int)$this->file_counter->fgets();
+
+        $new_used_request_count = $used_request_count + $sliced_report_definitions_count;
+
+        $this->file_counter->ftruncate(0);
+        $this->file_counter->fwrite($new_used_request_count);
+
+        $this->file_counter->flock(LOCK_UN);
+    }
+
+    /**
+     * Free the used slots
+     *
+     * @param $sliced_report_definitions_count
+     */
+    private function freeUsedRequestCount($sliced_report_definitions_count) {
+        $this->file_counter->flock(LOCK_EX);
+
+        $this->file_counter->rewind();
+        $used_request_count = (int)$this->file_counter->fgets();
+        $new_used_request_count = $used_request_count - $sliced_report_definitions_count;
+
+        $this->file_counter->ftruncate(0);
+        $this->file_counter->fwrite($new_used_request_count);
+
+        $this->file_counter->flock(LOCK_UN);
+    }
+
+    /**
+     * Get next requests based on available slots
+     *
+     * @param ReportDefinition[] $report_definitions
+     * @param int $offset
+     *
+     * @return array
+     */
+    private function getNextRequests($report_definitions, &$offset) {
+        $available_request_count = $this->lockAndGetAvailableRequestCount();
+
+        /** @var ReportDefinition[] $sliced_report_definitions */
+        $sliced_report_definitions = array_slice($report_definitions, $offset, $available_request_count);
+        $sliced_report_definitions_count = count($sliced_report_definitions);
+        $requests = array();
+        foreach ($sliced_report_definitions as $report_definition) {
+            $requests[] = $this->buildRequest($report_definition);
+            $offset++;
+        }
+
+        $this->unlock($sliced_report_definitions_count);
+
+        return array($sliced_report_definitions_count, $requests);
     }
 
 }
