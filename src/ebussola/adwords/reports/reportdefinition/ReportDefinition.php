@@ -17,6 +17,14 @@ namespace ebussola\adwords\reports\reportdefinition;
 class ReportDefinition implements \ebussola\adwords\reports\ReportDefinition {
 
     /**
+     * @var array
+     * field_name => field_type
+     *
+     * int, float or string
+     */
+    public $field_types;
+
+    /**
      * @var \ReportDefinition
      */
     private $report_definition;

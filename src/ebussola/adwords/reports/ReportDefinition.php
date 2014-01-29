@@ -12,6 +12,7 @@ namespace ebussola\adwords\reports;
  * Interface ReportDefinition
  * @package ebussola\adwords\reports
  *
+ * @property array $field_types field_name => field_type (possible types: int, float or string)
  * @property \Selector $selector
  * @property string $reportName
  * @property string $reportType

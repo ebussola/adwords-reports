@@ -122,6 +122,8 @@ class Reports {
             $reports[] = $report;
         }
 
+        $this->fixFieldTypes($reports, $report_definitions);
+
         return $reports;
     }
 
@@ -259,6 +261,36 @@ class Reports {
         $this->unlock($sliced_report_definitions_count);
 
         return array($sliced_report_definitions_count, $requests);
+    }
+
+    /**
+     * @param $reports
+     * @param ReportDefinition[] $report_definitions
+     */
+    private function fixFieldTypes($reports, $report_definitions) {
+        foreach ($reports as $i => $report) {
+            $report_definition = $report_definitions[$i];
+
+            foreach ($report as $stats) {
+                foreach ($stats as $field => &$value) {
+
+                    if (isset($report_definition->field_types[$field])) {
+                        switch ($report_definition->field_types[$field]) {
+                            case 'int' :
+                                $value = (int) $value;
+                                break;
+
+                            case 'float' :
+                                $value = (float) str_replace(',', '', $value);
+                                break;
+
+//                            case 'string' :
+//                                break;
+                        }
+                    }
+                }
+            }
+        }
     }
 
 }

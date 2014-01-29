@@ -64,6 +64,45 @@ class ReportsTest extends \PHPUnit_Framework_TestCase {
                 $this->assertObjectHasAttribute('clicks', $row);
             }
         }
+
+        return array(
+            $report_definitions,
+            $reports
+        );
+    }
+
+    /**
+     * @depends testMultipleDownloadReports
+     */
+    public function testFieldTypes($result) {
+        list($report_definitions, $reports) = $result;
+
+        foreach ($reports as $i => $report) {
+            $report_definition = $report_definitions[$i];
+
+            foreach ($report as $stats) {
+                foreach ($stats as $field => $value) {
+
+                    foreach ($report_definition->field_types as $rd_field => $rd_type) {
+                        if ($rd_field == $field) {
+                            switch ($rd_type) {
+                                case 'int' :
+                                    $this->assertTrue(is_integer($value));
+                                    break;
+
+                                case 'float' :
+                                    $this->assertTrue(is_float($value));
+                                    break;
+
+                                case 'string' :
+                                    $this->assertTrue(is_string($value));
+                                    break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
 }
@@ -75,7 +114,21 @@ class CampaignPerformanceReport extends \ebussola\adwords\reports\reportdefiniti
 
         $this->reportType = 'CAMPAIGN_PERFORMANCE_REPORT';
         $this->selector = new \Selector();
-        $this->selector->fields = array('Amount', 'AverageCpc', 'AveragePosition', 'CampaignName', 'Clicks');
+        $this->selector->fields = array(
+            'Amount',
+            'AverageCpc',
+            'AveragePosition',
+            'CampaignName',
+            'Clicks'
+        );
+
+        $this->field_types = array(
+            'budget'      => 'float',
+            'avgCPC'      => 'float',
+            'avgPosition' => 'float',
+            'campaign'    => 'string',
+            'clicks'      => 'int'
+        );
     }
 
 }
