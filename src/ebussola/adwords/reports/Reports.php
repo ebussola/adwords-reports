@@ -8,6 +8,7 @@
 
 namespace ebussola\adwords\reports;
 
+use ebussola\adwords\reports\exception\FieldTypeNotDefinedException;
 use ebussola\adwords\reports\ReportDefinition;
 use Guzzle\Http\Client;
 use Guzzle\Http\Exception\MultiTransferException;
@@ -287,6 +288,8 @@ class Reports {
 //                            case 'string' :
 //                                break;
                         }
+                    } else {
+                        throw new FieldTypeNotDefinedException();
                     }
                 }
             }
