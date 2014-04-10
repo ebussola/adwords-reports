@@ -9,7 +9,7 @@
         }
     ],
     "require": {
-        "google/adwords": "4.6.1",
+        "google/adwords": "5.2.2",
         "guzzle/guzzle": "v3.7.4"
     },
     "require-dev": {
@@ -25,11 +25,11 @@
             "type": "package",
             "package": {
                 "name": "google/adwords",
-                "version": "4.6.1",
+                "version": "5.2.2",
                 "source": {
-                    "url": "https://code.google.com/p/google-api-adwords-php/",
+                    "url": "https://github.com/googleads/googleads-php-lib.git",
                     "type": "git",
-                    "reference": "6e602ed6a048d15779e64384232ac8004898555b"
+                    "reference": "5.2.2"
                 },
                 "autoload": {
                     "classmap": [
