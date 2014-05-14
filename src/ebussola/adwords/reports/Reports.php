@@ -21,6 +21,7 @@ class Reports {
     const MAX_PARALLEL_DOWNLOADS = 40;
 
     const FILE_COUNTER = '/dev/shm/ebussola_adwords_reports_counter';
+    const ALTERNATIVE_FILE_COUNTER = '/tmp/ebussola_adwords_reports_counter';
 
     /**
      * @var Client
@@ -68,7 +69,11 @@ class Reports {
         $this->developer_token = $developer_token;
         $this->customer_id = $customer_id;
 
-        $this->file_counter = new \SplFileObject(self::FILE_COUNTER, 'a+');
+        if (file_exists('/dev/shm')) {
+            $this->file_counter = new \SplFileObject(self::FILE_COUNTER, 'a+');
+        } else {
+            $this->file_counter = new \SplFileObject(self::ALTERNATIVE_FILE_COUNTER, 'a+');
+        }
     }
 
     /**
