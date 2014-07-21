@@ -290,8 +290,9 @@ class Reports {
                                 $value = (float) str_replace(',', '', $value);
                                 break;
 
-//                            case 'string' :
-//                                break;
+                            case 'micro' :
+                                $value = (float) $value / 1000000;
+                                break;
                         }
                     } else {
                         throw new FieldTypeNotDefinedException();

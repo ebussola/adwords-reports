@@ -94,8 +94,8 @@ class ReportsTest extends \PHPUnit_Framework_TestCase {
                                     $this->assertTrue(is_float($value));
                                     break;
 
-                                case 'string' :
-                                    $this->assertTrue(is_string($value));
+                                case 'micro' :
+                                    $this->assertTrue($value < 1000000);
                                     break;
                             }
                         }
@@ -143,8 +143,8 @@ class CampaignPerformanceReport extends \ebussola\adwords\reports\reportdefiniti
         );
 
         $this->field_types = array(
-            'budget'      => 'float',
-            'avgCPC'      => 'float',
+            'budget'      => 'micro',
+            'avgCPC'      => 'micro',
             'avgPosition' => 'float',
             'campaign'    => 'string',
             'clicks'      => 'int'
