@@ -16,7 +16,7 @@ use Guzzle\Http\Message\Response;
 
 class Reports {
 
-    const API_VERSION = 'v201309';
+    const API_VERSION = 'v201406';
 
     const MAX_PARALLEL_DOWNLOADS = 40;
 

@@ -49,7 +49,7 @@ class SimpleXMLElementTest extends PHPUnit_Framework_TestCase {
 
         $expected = <<<XML
 <?xml version="1.0"?>
-<reportDefinition xmlns="https://adwords.google.com/api/adwords/cm/v201309">
+<reportDefinition xmlns="https://adwords.google.com/api/adwords/cm/v201406">
   <selector>
     <fields>CampaignId</fields>
     <fields>Id</fields>
